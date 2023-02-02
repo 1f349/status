@@ -1,0 +1,36 @@
+platform: linux/amd64
+
+pipeline:
+  format:
+    image: node
+    commands:
+      - yarn
+      - yarn run prettier:check:ci
+
+  build:
+    image: node
+    commands:
+      - yarn
+      - yarn run build
+
+  archive:
+    image: joseluisq/drone-archive
+    settings:
+      format: tar
+      src_base_path: ./dist
+      src: .
+      dest: ./summer-ui.tar.gz
+      checksum: true
+      checksum_algo: sha256
+      checksum_dest: summer-ui.CHECKSUM.tar.gz.txt
+
+  publish:
+    image: plugins/gitea-release
+    settings:
+      api_key:
+        from_secret: release-token
+      base_url: https://code.mrmelon54.com
+      files: ./summer-ui.tar.gz
+    when:
+      event:
+        - tag
