@@ -4,8 +4,8 @@ export function fetchStatus() {
   return fetchJsonApi(`${API_URL}/status`, "GET");
 }
 
-export function fetchStatusOfService(serviceId: number) {
-  return fetchJsonApi(`${API_URL}/status/${serviceId}`, "GET");
+export function fetchStatusOfService(serviceId: number, days: number) {
+  return fetchJsonApi(`${API_URL}/status/${serviceId}?days=${days}`, "GET");
 }
 
 export function fetchMaintenance() {
@@ -14,11 +14,11 @@ export function fetchMaintenance() {
 
 export function fetchJsonApi(url, method) {
   return new Promise((res, rej) => {
-    fetch(url, { method: method })
-      .then((resp) => {
+    fetch(url, {method: method})
+      .then(resp => {
         resp
           .json()
-          .then((r) => {
+          .then(r => {
             res(r);
           })
           .catch(function (err) {

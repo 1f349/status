@@ -34,7 +34,7 @@
 
 <style lang="scss">
   #app-router {
-    max-width: min(100%, 1000px);
+    max-width: min(100%, 800px);
     margin: auto;
 
     > header {

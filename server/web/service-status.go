@@ -17,6 +17,15 @@ func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, "Invalid service parameter", http.StatusBadRequest)
 		return
 	}
+	days, err := strconv.Atoi(req.URL.Query().Get("days"))
+	if err != nil {
+		http.Error(rw, "Invalid days parameter", http.StatusBadRequest)
+		return
+	}
+	if days != 90 && days != 60 && days != 30 {
+		http.Error(rw, "Invalid days parameter, must be 30, 60 or 90", http.StatusBadRequest)
+		return
+	}
 
 	// Check service is public
 	var service structure.Service
@@ -70,11 +79,11 @@ func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request) {
 
 	// Calculate beans
 	var current structure.Bean
-	var beans [90]structure.Bean
-	t := time.Now().Add(-90 * 24 * time.Hour)
+	beans := make([]structure.Bean, days)
+	t := time.Now().Add(time.Duration(-days) * 24 * time.Hour)
 	for _, hit := range hits {
 		day := int(hit.CreatedAt.Sub(t).Hours() / 24)
-		if day >= 0 && day < 90 {
+		if day >= 0 && day < days {
 			beans[day] = structure.Bean{State: structure.BeanStateHit, CreatedAt: hit.CreatedAt, Time: hit.CreatedAt.Unix()}
 			if beans[day].CreatedAt.After(current.CreatedAt) {
 				current = beans[day]
@@ -83,7 +92,7 @@ func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request) {
 	}
 	for _, failure := range failures {
 		day := int(failure.CreatedAt.Sub(t).Hours() / 24)
-		if day >= 0 && day < 90 {
+		if day >= 0 && day < days {
 			beans[day] = structure.Bean{State: structure.BeanStateFailure, CreatedAt: failure.CreatedAt, Time: failure.CreatedAt.Unix()}
 			if current.State == structure.BeanStateUnknown || beans[day].CreatedAt.After(current.CreatedAt) {
 				current = beans[day]
@@ -94,8 +103,8 @@ func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request) {
 	// Encode output
 	encoder := json.NewEncoder(rw)
 	err = encoder.Encode(struct {
-		Current structure.Bean     `json:"current"`
-		Beans   [90]structure.Bean `json:"beans"`
+		Current structure.Bean   `json:"current"`
+		Beans   []structure.Bean `json:"beans"`
 	}{
 		Current: current,
 		Beans:   beans,
