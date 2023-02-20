@@ -2,13 +2,16 @@
   import Check from "~/icons/Check.svelte";
   import Cross from "~/icons/Cross.svelte";
   import LazyDelay from "~/lib/LazyDelay.svelte";
-  import {fetchStatus, fetchStatusOfService} from "~/utils/api";
+  import ResponseTimeGraph from "~/lib/ResponseTimeGraph.svelte";
+  import {fetchStatus, fetchStatusOfService, serviceGraphUrl} from "~/utils/api";
 
   let innerWidth: number;
   $: days = calculateNumberOfDays(innerWidth);
   $: fetching = fetchStatus() as Promise<Group[]>;
   $: fetchBeans(days);
   let fetched = false;
+
+  let graphWidth: number = 100;
 
   function calculateNumberOfDays(w: number) {
     if (w >= 600) return 90;
@@ -40,6 +43,7 @@
     id: number;
     name: string;
     beans: Promise<BeanStatus>;
+    graph: Promise<Graph>;
   }
 
   interface BeanStatus {
@@ -50,6 +54,11 @@
   interface Bean {
     state: number;
     time: number;
+  }
+
+  interface Graph {
+    x: number;
+    y: number;
   }
 </script>
 
@@ -93,7 +102,9 @@
               <div>{days} days ago</div>
               <div>Today</div>
             </div>
-            <div class="graph" />
+            <div class="graph" bind:clientWidth={graphWidth}>
+              <ResponseTimeGraph width={graphWidth} dataUrl={serviceGraphUrl(z.id)} />
+            </div>
           </div>
         {/each}
       </div>
