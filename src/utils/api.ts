@@ -1,11 +1,15 @@
 export const API_URL = import.meta.env.VITE_API_URL;
 
-export function fetchAll() {
-  return fetchJsonApi(`${API_URL}/api/all`, "GET");
+export function fetchStatus() {
+  return fetchJsonApi(`${API_URL}/status`, "GET");
 }
 
-export function fetchStatus(serviceId: number) {
-  return fetchJsonApi(`${API_URL}/api/status`, "GET");
+export function fetchStatusOfService(serviceId: number) {
+  return fetchJsonApi(`${API_URL}/status/${serviceId}`, "GET");
+}
+
+export function fetchMaintenance() {
+  return fetchJsonApi(`${API_URL}/maintenance`, "GET");
 }
 
 export function fetchJsonApi(url, method) {

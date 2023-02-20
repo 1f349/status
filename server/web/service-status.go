@@ -2,104 +2,17 @@ package web
 
 import (
 	"code.mrmelon54.com/melon/status/server/structure"
-	"code.mrmelon54.com/melon/status/server/utils"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-func (w *Web) allServices(rw http.ResponseWriter, req *http.Request, _ *utils.State, isAdmin bool) {
+func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request) {
 	// Parse input
-	q := req.URL.Query()
-	groupId, err := strconv.Atoi(q.Get("group"))
-	if err != nil {
-		http.Error(rw, "Invalid group parameter", http.StatusBadRequest)
-		return
-	}
-
-	// Check group is public
-	var group structure.Group
-	r := w.engine.NewSession()
-	if !isAdmin {
-		r = r.Where("public = 1")
-	}
-	foundGroup, err := r.Where("id = ?", groupId).Get(&group)
-	if err != nil {
-		log.Println(err)
-		http.Error(rw, "Failed to read from database", http.StatusInternalServerError)
-		return
-	}
-	if !foundGroup {
-		http.Error(rw, "404 Not Found", http.StatusNotFound)
-		return
-	}
-
-	// Find services
-	var services []structure.Service
-	r = w.engine.NewSession()
-	if !isAdmin {
-		r = r.Where("public = 1")
-	}
-	err = r.Where("group_id = ?", groupId).Asc("order").Find(&services)
-	if err != nil {
-		log.Println(err)
-		http.Error(rw, "Failed to read from database", http.StatusInternalServerError)
-		return
-	}
-	if services == nil {
-		services = []structure.Service{}
-	}
-
-	// Encode output
-	encoder := json.NewEncoder(rw)
-	err = encoder.Encode(services)
-	if err != nil {
-		http.Error(rw, "Failed to encode data", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (w *Web) getService(rw http.ResponseWriter, req *http.Request, _ *utils.State, isAdmin bool) {
-	// Parse input
-	q := req.URL.Query()
-	groupId, err := strconv.Atoi(q.Get("service"))
-	if err != nil {
-		http.Error(rw, "Invalid group parameter", http.StatusBadRequest)
-		return
-	}
-
-	// Find group
-	var service structure.Service
-	r := w.engine.NewSession()
-	if !isAdmin {
-		r = r.Where("public = 1")
-	}
-	b, err := r.Where("id = ?", groupId).Asc("order").Get(&service)
-	if err != nil {
-		log.Println(err)
-		http.Error(rw, "Failed to read from database", http.StatusInternalServerError)
-		return
-	}
-	if !b {
-		http.Error(rw, "404 Not Found", http.StatusNotFound)
-		return
-	}
-
-	// Encode output
-	encoder := json.NewEncoder(rw)
-	err = encoder.Encode(service)
-	if err != nil {
-		http.Error(rw, "Failed to encode data", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request, _ *utils.State, isAdmin bool) {
-	// Parse input
-	q := req.URL.Query()
-	serviceId, err := strconv.Atoi(q.Get("service"))
+	serviceId, err := strconv.Atoi(mux.Vars(req)["service"])
 	if err != nil {
 		http.Error(rw, "Invalid service parameter", http.StatusBadRequest)
 		return
@@ -107,11 +20,7 @@ func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request, _ *uti
 
 	// Check service is public
 	var service structure.Service
-	r := w.engine.NewSession()
-	if !isAdmin {
-		r = r.Where("public = 1")
-	}
-	foundService, err := r.Where("id = ?", serviceId).Get(&service)
+	foundService, err := w.engine.Where("public = 1 and id = ?", serviceId).Get(&service)
 	if err != nil {
 		log.Println(err)
 		http.Error(rw, "Failed to read from database", http.StatusInternalServerError)
@@ -124,11 +33,7 @@ func (w *Web) getServiceStatus(rw http.ResponseWriter, req *http.Request, _ *uti
 
 	// Check group is public
 	var group structure.Group
-	r = w.engine.NewSession()
-	if !isAdmin {
-		r = r.Where("public = 1")
-	}
-	foundGroup, err := r.Where("id = ?", service.GroupId).Get(&group)
+	foundGroup, err := w.engine.Where("public = 1 and id = ?", service.GroupId).Get(&group)
 	if err != nil {
 		log.Println(err)
 		http.Error(rw, "Failed to read from database", http.StatusInternalServerError)

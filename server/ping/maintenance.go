@@ -41,7 +41,6 @@ func (m *Maintenance) deleteAllExtraItems(d time.Duration) {
 
 func (m *Maintenance) deleteAllSince(table any, d time.Duration) {
 	_, err := m.engine.Where("created_at < from_unixtime(?)", time.Now().Add(-d).Unix()).Delete(table)
-	//_, err := m.engine.Where("created_at > DATETIME(?)", time.Now().Add(-d).Format("2006-01-02 15:04:05")).Delete(table)
 	if err != nil {
 		log.Printf("[Maintenance::deleteAllSince(\"%#v\")] %s", table, err)
 		return

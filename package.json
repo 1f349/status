@@ -16,7 +16,7 @@
   "scripts": {
     "prettier:check:ci": "./node_modules/.bin/prettier --check .",
     "format": "./node_modules/.bin/prettier --write .",
-    "dev": "concurrently \"vite\" \"cd server && make dev\"",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"

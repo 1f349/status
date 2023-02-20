@@ -11,10 +11,10 @@ type Service struct {
 	CheckInternal      int64     `json:"-"`
 	Method             string    `json:"-"`
 	PostData           []byte    `xorm:"blob" json:"-"`
-	Order              int64     `json:"order"`
-	Public             bool      `json:"public"`
-	GroupId            int64     `json:"group_id"`
-	Permalink          string    `xorm:"index" json:"permalink"`
+	Order              int64     `json:"order,omitempty"`
+	Public             bool      `json:"public,omitempty"`
+	GroupId            int64     `json:"group_id,omitempty"`
+	Permalink          string    `xorm:"index" json:"permalink,omitempty"`
 	CreatedAt          time.Time `xorm:"created" json:"-"`
 	UpdatedAt          time.Time `xorm:"updated" json:"-"`
 	NotifyAfter        int64     `json:"-"`

@@ -1,5 +1,5 @@
 dist/
 .data/
 .env
-res/public/
+res/public/*
 !res/public/.gitkeep
