@@ -51,11 +51,11 @@
               {#await z.beans then zBeans}
                 {#if zBeans.current.state == 1}
                   <div class="check-icon">
-                    <Check size={18} />
+                    <Check size={14} />
                   </div>
                 {:else if zBeans.current.state == 2}
                   <div class="cross-icon">
-                    <Cross size={18} />
+                    <Cross size={14} />
                   </div>
                 {:else}{/if}
               {/await}
@@ -98,6 +98,7 @@
       h1 {
         margin: 0;
         line-height: 150%;
+        font-size: 22px;
       }
 
       .service-item {
@@ -112,6 +113,7 @@
           h2 {
             margin: 0;
             line-height: 150%;
+            font-size: 15px;
           }
         }
       }
@@ -123,8 +125,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
+    margin: 3px;
     border-radius: 50%;
   }
 
@@ -133,8 +136,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
+    margin: 3px;
     border-radius: 50%;
   }
 </style>
