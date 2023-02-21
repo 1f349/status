@@ -10,7 +10,6 @@
   $: plotHeight = height - 51;
 
   let timeInterval;
-  let rawData: Item[];
   let maxTime: [number, number, string] = [1, 1, "s"];
   let timeLabels: [number, string][];
   let graphPath: string;
@@ -29,10 +28,7 @@
   async function recalcualteTime() {
     let data = (await fetchJsonApi(dataUrl, "GET")) as Item[];
     if (data.length == 0) return;
-    rawData = data.map(x => {
-      x.y /= 1e9;
-      return x;
-    });
+    let rawData = data.map(x => ({x: x.x, y: x.y / 1e9}));
     let m = Math.max(...rawData.map(x => x.y));
     let n = 1e9;
     let units = "s";
@@ -51,21 +47,27 @@
       n = 1;
       units = "ns";
     }
-    maxTime = [Math.ceil(m * 2) / 2, n, units];
+    let o = Math.ceil(m * 2) / 2;
+    maxTime = [o, o * n, units];
 
     let d = new Date();
     timeLabels = calculateTimeLabels(d);
-    graphPath = renderRawGraph(d);
+    graphPath = renderRawGraph(d, data);
   }
 
-  function renderRawGraph(d: Date) {
-    let d2 = new Date(d);
-    d2.setHours(9);
-    d2.setMinutes(0);
-    d2.setSeconds(0);
-    let d3 = new Date(d2);
-    d3.setHours(10);
-    return `M ${calculateXFromTime(d2, d)} 5 L ${calculateXFromTime(d3, d)} 10`;
+  function renderRawGraph(d: Date, rawData: Item[]) {
+    let first = true;
+    let z = "";
+    let l = new Date();
+    for (let i = 0; i < rawData.length; i++) {
+      let y = new Date();
+      y.setTime(rawData[i].x * 1000);
+      if (l.getTime() + 60000 < y.getTime()) first = true;
+      z += `${first ? "M" : "L"} ${calculateXFromTime(y, d)} ${calculateYFromValue(rawData[i].y)} `;
+      first = false;
+      l = y;
+    }
+    return z;
   }
 
   function round1dp(d: number) {
@@ -78,6 +80,10 @@
 
   function calculateXFromTime(t: Date, d: Date) {
     return (plotWidth / totalSeconds) * (totalSeconds - (getRawSeconds(d) - getRawSeconds(t)));
+  }
+
+  function calculateYFromValue(v: number) {
+    return plotHeight - (plotHeight / maxTime[1]) * v;
   }
 
   function calculateTimeLabels(d: Date): [number, string][] {
@@ -111,13 +117,13 @@
 </script>
 
 <div>
-  {#if rawData}
+  {#if timeLabels && graphPath && maxTime}
     <p class="header">Response times</p>
     <div dir="ltr" class="chart">
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" {width} {height} viewBox="0 0 {width} {height}">
         <defs>
           <clipPath id="chart-oot8ea6-1-">
-            <rect x="0" y="0" width={plotWidth} height={plotHeight} fill="none" />
+            <rect x="0" y="0" width={plotWidth} height={plotHeight + 3} fill="none" />
           </clipPath>
         </defs>
         <g class="chart-axis chart-xaxis">
@@ -136,10 +142,15 @@
             transform="translate(51,10) scale(1 1)"
             clip-path="url(#chart-oot8ea6-1-)"
           >
-            {#if rawData}
-              {JSON.stringify(rawData)}
-            {/if}
-            <path fill="none" d={graphPath} class="chart-graph" stroke="#70778C" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+            <path
+              fill="none"
+              d={graphPath}
+              class="chart-graph"
+              stroke="var(--bean-green)"
+              stroke-width="3"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
           </g>
           <g class="chart-axis-labels chart-xaxis-labels">
             {#each timeLabels as timeLabel}
