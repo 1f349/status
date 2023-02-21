@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Roboto Mono", "Lucida Console", "Monaco", monospace;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -19,8 +19,12 @@
 
   --bean-green: #10b981;
   --bean-green-hover: #10b98199;
+
   --bean-red: #f87171;
   --bean-red-hover: #f8717199;
+
+  --bean-unknown: #9c9487;
+  --bean-unknown-hover: #9c948799;
 }
 
 html,
