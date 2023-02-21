@@ -8,6 +8,10 @@ export function fetchStatusOfService(serviceId: number, days: number) {
   return fetchJsonApi(`${API_URL}/status/${serviceId}?days=${days}`, "GET");
 }
 
+export function serviceGraphUrl(serviceId: number) {
+  return `${API_URL}/status/${serviceId}/graph`;
+}
+
 export function fetchMaintenance() {
   return fetchJsonApi(`${API_URL}/maintenance`, "GET");
 }

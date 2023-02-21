@@ -49,6 +49,7 @@ func (w *Web) SetupWeb() *http.Server {
 	})
 	router.HandleFunc("/status", w.all)
 	router.HandleFunc("/status/{service}", w.getServiceStatus)
+	router.HandleFunc("/status/{service}/graph", w.getServiceGraph)
 	router.HandleFunc("/maintenance", w.all)
 
 	return &http.Server{
